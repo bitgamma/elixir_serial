@@ -1,4 +1,8 @@
 defmodule Serial do
+  @moduledoc """
+  Serial communication through Elixir ports.
+  """
+
   use GenServer
 
   @send 0
@@ -11,34 +15,59 @@ defmodule Serial do
   @parity_even 7
   @break 8
 
-  def start_link(pid) do
-    GenServer.start_link(__MODULE__, pid)
+  @doc """
+  Starts a serial port. The process invoking this function will receive
+  messages in the form of `{:elixir_serial, pid, data}`.
+  """
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, self(), opts)
   end
 
+  @doc """
+  Opens a connection to the given tty.
+  """
   def open(pid, tty) do
     GenServer.call(pid, {:open, tty})
   end
 
+  @doc """
+  Close the currently open connection.
+  """
   def close(pid) do
     GenServer.call(pid, {:cmd, @close})
   end
 
+  @doc """
+  Reopens the connection to the current tty.
+  """
   def connect(pid) do
     GenServer.call(pid, {:cmd, @connect})
   end
 
+  @doc """
+  Disconnects from the current tty.
+  """
   def disconnect(pid) do
     GenServer.call(pid, {:cmd, @disconnect})
   end
 
+  @doc """
+  Sets the connection speed to the given value.
+  """
   def set_speed(pid, speed) do
     set_speed(pid, speed, speed)
   end
 
+  @doc """
+  Sets the input and output connection speed to the given values.
+  """
   def set_speed(pid, in_speed, out_speed) do
     GenServer.call(pid, {:speed, in_speed, out_speed})
   end
 
+  @doc """
+  Sets the parity to either `:odd` and `:even`.
+  """
   def set_parity(pid, :odd) do
     GenServer.call(pid, {:cmd, @parity_odd})
   end
@@ -46,16 +75,22 @@ defmodule Serial do
     GenServer.call(pid, {:cmd, @parity_even})
   end
 
+  @doc """
+  Sends a break to the open connection.
+  """
   def break(pid) do
     GenServer.call(pid, {:cmd, @break})
   end
 
+  @doc """
+  Sends data over the open connection.
+  """
   def send_data(pid, data) do
     GenServer.call(pid, {:send, data})
   end
 
   def init(pid) do
-    exec = :code.priv_dir(:elixir_serial) ++ '/serial'
+    exec = :code.priv_dir(:serial) ++ '/serial'
     port = Port.open({:spawn_executable, exec}, [{:args, ['-erlang']}, :binary, {:packet, 2}])
     {:ok, {pid, port}}
   end

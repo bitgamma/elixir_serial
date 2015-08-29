@@ -1,6 +1,7 @@
 _build
 deps
 priv
+doc
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
