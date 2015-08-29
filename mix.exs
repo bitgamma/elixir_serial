@@ -41,6 +41,7 @@ defmodule Serial.Mixfile do
 
   defp package do
     [
+      files: ["lib", "mix.exs", "README.md", "LICENSE", "src", "CMakeLists.txt"],
       contributors: ["Michele Balistreri"],
       licenses: ["ISC"],
       links: %{"GitHub" => "https://github.com/bitgamma/elixir_serial"}
