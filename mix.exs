@@ -8,11 +8,11 @@ defmodule Mix.Tasks.Compile.Cmake do
   end
 end
 
-defmodule ElixirSerial.Mixfile do
+defmodule Serial.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :elixir_serial,
+    [app: :serial,
      version: "0.1.0",
      elixir: "~> 1.0",
      compilers: [:cmake] ++ Mix.compilers,

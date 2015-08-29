@@ -1,4 +1,4 @@
-defmodule ElixirSerial do
+defmodule Serial do
   use GenServer
 
   @send 0
@@ -50,7 +50,7 @@ defmodule ElixirSerial do
     GenServer.call(pid, {:cmd, @break})
   end
 
-  def send(pid, data) do
+  def send_data(pid, data) do
     GenServer.call(pid, {:send, data})
   end
 
@@ -75,5 +75,10 @@ defmodule ElixirSerial do
   def handle_call({:send, data}, _from, {_pid, port} = state) do
     Port.command(port, [@send, data])
     {:reply, :ok, state}
+  end
+
+  def handle_info({port, {:data, data}}, {pid, port} = state) do
+    send(pid, {:elixir_serial, self(), data})
+    {:noreply, state}
   end
 end
