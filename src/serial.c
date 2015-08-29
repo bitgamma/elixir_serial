@@ -206,27 +206,24 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed) {
     exit(1);
   }
 
-  if (cfsetispeed(&ttymodes,new_ispeed) < 0)
-    {
-      perror("cfsetispeed");
-      exit(1);
-    }
+  if (cfsetispeed(&ttymodes,new_ispeed) < 0) {
+    perror("cfsetispeed");
+    exit(1);
+  }
 
-  if (cfsetospeed(&ttymodes,new_ospeed) < 0)
-    {
-      perror("cfsetospeed");
-      exit(1);
-    }
+  if (cfsetospeed(&ttymodes,new_ospeed) < 0) {
+    perror("cfsetospeed");
+    exit(1);
+  }
 
   ttymodes.c_cflag |= CRTSCTS;     /* enable RTS/CTS flow control */
 
   /* Apply hanges */
 
-  if (tcsetattr(fd, TCSAFLUSH, &ttymodes) < 0)
-    {
-      perror("tcsetattr");
-      exit(1);
-    }
+  if (tcsetattr(fd, TCSAFLUSH, &ttymodes) < 0) {
+    perror("tcsetattr");
+    exit(1);
+  }
 }
 
 /**********************************************************************
@@ -234,8 +231,7 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed) {
  * Desc: returns the size of a two_byte_header message (from Erlang).
  */
 
-int get_tbh_size(unsigned char buf[])
-{
+int get_tbh_size(unsigned char buf[]) {
   return (((int) buf[0]) << 8) + ((int) buf[1]);
 }
 
@@ -244,8 +240,7 @@ int get_tbh_size(unsigned char buf[])
  * Desc: sets the first two bytes of the buffer to its size
  */
 
-void set_tbh_size(unsigned char buf[], int size)
-{
+void set_tbh_size(unsigned char buf[], int size) {
   buf[1] = (unsigned char) (size & 0xff);
   buf[0] = (unsigned char) ((size >> 8) & 0xff);
   return;
@@ -257,8 +252,7 @@ void set_tbh_size(unsigned char buf[], int size)
  *       at the beginning.
  */
 
-void tbh_write(int fd, unsigned char buf[], int buffsize)
-{
+void tbh_write(int fd, unsigned char buf[], int buffsize) {
   unsigned char header_buf[TBHSIZE];
 
   Debug1("tbh_write: send message of size %d\r\n", buffsize);
