@@ -1,0 +1,2 @@
+defmodule ElixirSerial do
+end

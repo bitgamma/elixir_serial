@@ -1,0 +1,9 @@
+_build
+deps
+priv
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+erl_crash.dump
+*.ez
