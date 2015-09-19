@@ -13,7 +13,7 @@ defmodule Serial.Mixfile do
 
   def project do
     [app: :serial,
-     version: "0.1.0",
+     version: "0.1.1",
      elixir: "~> 1.0",
      compilers: [:cmake] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
