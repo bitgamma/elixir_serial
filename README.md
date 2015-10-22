@@ -5,6 +5,28 @@ This is a port program with elixir driver for serial communication.
 The C code was originally written by Johan Bevemyr in 1996 and
 sporadically maintained by Tony Garnock-Jones from 2007 onwards.
 
+## Examples
+### Opening a port
+```elixir
+{:ok, serial} = Serial.start_link
+
+Serial.open(serial, "/dev/ttyS0")
+Serial.set_speed(serial, 57600)
+Serial.connect(serial)
+```
+
+### Sending data
+```elixir
+Serial.send_data(serial, <<0x01, 0x02, 0x03>>)
+```
+
+### Receiving data
+```elixir
+def handle_info({:elixir_serial, serial, data}, state) do
+# do something with the data
+end
+```
+
 ## License
 
 Copyright (c) 1996, 1999 Johan Bevemyr  
