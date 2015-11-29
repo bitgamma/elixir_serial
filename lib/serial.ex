@@ -106,7 +106,7 @@ defmodule Serial do
 
   def init(pid) do
     exec = :code.priv_dir(:serial) ++ '/serial'
-    port = Port.open({:spawn_executable, exec}, [{:args, ['-erlang']}, :binary, {:packet, 2}])
+    port = Port.open({:spawn_executable, exec}, [{:args, ['-erlang']}, :binary, {:packet, 2}, :exit_status])
     {:ok, {pid, port}}
   end
 
@@ -136,5 +136,8 @@ defmodule Serial do
   def handle_info({port, {:data, data}}, {pid, port} = state) do
     send(pid, {:elixir_serial, self(), data})
     {:noreply, state}
+  end
+  def handle_info({port, {:exit_status, status}}, {_pid, port} = state) do
+    exit({:port_exit, status})
   end
 end
