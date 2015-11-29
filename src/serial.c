@@ -216,9 +216,43 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed) {
     exit(1);
   }
 
-  ttymodes.c_cflag |= CRTSCTS;     /* enable RTS/CTS flow control */
+  /* Apply changes */
 
-  /* Apply hanges */
+  if (tcsetattr(fd, TCSAFLUSH, &ttymodes) < 0) {
+    perror("tcsetattr");
+    exit(1);
+  }
+}
+
+/**********************************************************************
+ * Name: set_tty_flow_control
+ *
+ * Desc: enable input and output flow control.
+ */
+
+void set_tty_flow_control(int fd, boolean in_flowcontrol, boolean out_flowcontrol) {
+  struct termios ttymodes;
+
+  /* Get ttymodes */
+
+  if (tcgetattr(fd,&ttymodes) < 0) {
+    perror("tcgetattr");
+    exit(1);
+  }
+
+  if (in_flowcontrol) {
+    ttymodes.c_cflag |= CRTS_IFLOW;
+  } else {
+    ttymodes.c_cflag &= ~CRTS_IFLOW;
+  }
+
+  if (out_flowcontrol) {
+    ttymodes.c_cflag |= CCTS_OFLOW;
+  } else {
+    ttymodes.c_cflag &= ~CCTS_OFLOW;
+  }
+
+  /* Apply changes */
 
   if (tcsetattr(fd, TCSAFLUSH, &ttymodes) < 0) {
     perror("tcsetattr");
@@ -357,6 +391,8 @@ int main(int argc, char *argv[]) {
   boolean        erlang=FALSE;         /* talking to erlang flag   */
   speed_t        in_speed=B9600;       /* default in speed         */
   speed_t        out_speed=B9600;      /* default out speed        */
+  boolean        in_flowcontrol=TRUE;  /* default input flow control  */
+  boolean        out_flowcontrol=TRUE; /* default output flow control */
   char  ttyname[MAXPATHLEN];  /* terminal name            */
 
   strcpy(ttyname,"/dev/ttyS0");
@@ -414,6 +450,7 @@ int main(int argc, char *argv[]) {
 
     set_raw_tty_mode(ttyfd);
     set_tty_speed(ttyfd,in_speed,out_speed);
+    set_tty_flow_control(ttyfd,in_flowcontrol,out_flowcontrol);
   }
 
   /****************************************
@@ -581,6 +618,7 @@ int main(int argc, char *argv[]) {
 
 		          set_raw_tty_mode(ttyfd);
 		          set_tty_speed(ttyfd,in_speed,out_speed);
+              set_tty_flow_control(ttyfd,in_flowcontrol,out_flowcontrol);
 		          break;
 		        case CLOSE:
 		          Debug("received CLOSE\r\n");
@@ -621,6 +659,20 @@ int main(int argc, char *argv[]) {
 		            (void) tcsendbreak(ttyfd,BREAKPERIOD);
 		          }
 		          break;
+            case FLOW_CONTROL:
+            {
+              unsigned char in_flowcontrol_char = buf[HEADERSIZE];
+              unsigned char out_flowcontrol_char = buf[HEADERSIZE + 1];
+
+		          boolean in_flowcontrol = in_flowcontrol_char == '1';
+              boolean out_flowcontrol = out_flowcontrol_char == '1';
+
+              if(TtyOpen(ttyfd)) {
+                set_tty_flow_control(ttyfd, in_flowcontrol, out_flowcontrol);
+              }
+
+		          break;
+		        }
 		        default:
 		          fprintf(stderr,"%s: unknown command from Erlang\n", argv[0]);
 		          break;

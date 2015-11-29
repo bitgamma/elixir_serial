@@ -14,6 +14,7 @@ defmodule Serial do
   @parity_odd 6
   @parity_even 7
   @break 8
+  @flow_control 9
 
   @doc """
   Starts a serial port. The process invoking this function will receive
@@ -83,6 +84,20 @@ defmodule Serial do
   end
 
   @doc """
+  Enable or disable flow control.
+  """
+  def set_flow_control(pid, enable) do
+    set_flow_control(pid, enable, enable)
+  end
+
+  @doc """
+  Enable or disable flow control.
+  """
+  def set_flow_control(pid, in_enable, out_enable) do
+    GenServer.call(pid, {:flow_control, in_enable, out_enable})
+  end
+
+  @doc """
   Sends data over the open connection.
   """
   def send_data(pid, data) do
@@ -101,6 +116,12 @@ defmodule Serial do
   end
   def handle_call({:speed, new_in_speed, new_out_speed}, _from, {_pid, port} = state) do
     Port.command(port, [@speed, Integer.to_char_list(new_in_speed), ' ', Integer.to_char_list(new_out_speed), 0])
+    {:reply, :ok, state}
+  end
+  def handle_call({:flow_control, new_in_enable, new_out_enable}, _from, {_pid, port} = state) do
+    in_enable_char = if new_in_enable, do: '1', else: '0'
+    out_enable_char = if new_out_enable, do: '1', else: '0'
+    Port.command(port, [@flow_control, in_enable_char, out_enable_char])
     {:reply, :ok, state}
   end
   def handle_call({:cmd, cmd}, _from, {_pid, port} = state) do
