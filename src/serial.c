@@ -230,7 +230,7 @@ void set_tty_speed(int fd, speed_t new_ispeed, speed_t new_ospeed) {
  * Desc: enable input and output flow control.
  */
 
-void set_tty_flow_control(int fd, boolean in_flowcontrol, boolean out_flowcontrol) {
+void set_tty_flow_control(int fd, boolean enable) {
   struct termios ttymodes;
 
   /* Get ttymodes */
@@ -240,16 +240,10 @@ void set_tty_flow_control(int fd, boolean in_flowcontrol, boolean out_flowcontro
     exit(1);
   }
 
-  if (in_flowcontrol) {
-    ttymodes.c_cflag |= CRTS_IFLOW;
+  if (enable) {
+    ttymodes.c_cflag |= CRTSCTS;
   } else {
-    ttymodes.c_cflag &= ~CRTS_IFLOW;
-  }
-
-  if (out_flowcontrol) {
-    ttymodes.c_cflag |= CCTS_OFLOW;
-  } else {
-    ttymodes.c_cflag &= ~CCTS_OFLOW;
+    ttymodes.c_cflag &= ~CRTSCTS;
   }
 
   /* Apply changes */
@@ -391,8 +385,7 @@ int main(int argc, char *argv[]) {
   boolean        erlang=FALSE;         /* talking to erlang flag   */
   speed_t        in_speed=B9600;       /* default in speed         */
   speed_t        out_speed=B9600;      /* default out speed        */
-  boolean        in_flowcontrol=TRUE;  /* default input flow control  */
-  boolean        out_flowcontrol=TRUE; /* default output flow control */
+  boolean        flowcontrol=TRUE;     /* default flow control     */
   char  ttyname[MAXPATHLEN];  /* terminal name            */
 
   strcpy(ttyname,"/dev/ttyS0");
@@ -450,7 +443,7 @@ int main(int argc, char *argv[]) {
 
     set_raw_tty_mode(ttyfd);
     set_tty_speed(ttyfd,in_speed,out_speed);
-    set_tty_flow_control(ttyfd,in_flowcontrol,out_flowcontrol);
+    set_tty_flow_control(ttyfd,flowcontrol);
   }
 
   /****************************************
@@ -618,7 +611,7 @@ int main(int argc, char *argv[]) {
 
 		          set_raw_tty_mode(ttyfd);
 		          set_tty_speed(ttyfd,in_speed,out_speed);
-              set_tty_flow_control(ttyfd,in_flowcontrol,out_flowcontrol);
+              set_tty_flow_control(ttyfd,flowcontrol);
 		          break;
 		        case CLOSE:
 		          Debug("received CLOSE\r\n");
@@ -661,14 +654,12 @@ int main(int argc, char *argv[]) {
 		          break;
             case FLOW_CONTROL:
             {
-              unsigned char in_flowcontrol_char = buf[HEADERSIZE];
-              unsigned char out_flowcontrol_char = buf[HEADERSIZE + 1];
+              unsigned char flowcontrol_char = buf[HEADERSIZE];
 
-		          boolean in_flowcontrol = in_flowcontrol_char == '1';
-              boolean out_flowcontrol = out_flowcontrol_char == '1';
+		          boolean flowcontrol = flowcontrol_char == '1';
 
               if(TtyOpen(ttyfd)) {
-                set_tty_flow_control(ttyfd, in_flowcontrol, out_flowcontrol);
+                set_tty_flow_control(ttyfd, flowcontrol);
               }
 
 		          break;
