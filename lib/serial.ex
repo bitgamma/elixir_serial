@@ -137,7 +137,7 @@ defmodule Serial do
     send(pid, {:elixir_serial, self(), data})
     {:noreply, state}
   end
-  def handle_info({port, {:exit_status, status}}, {_pid, port} = state) do
+  def handle_info({port, {:exit_status, status}}, {_pid, port} = _state) do
     exit({:port_exit, status})
   end
 end
