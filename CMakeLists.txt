@@ -1,5 +1,0 @@
-cmake_minimum_required(VERSION 2.8)
-project(ELIXIR_SERIAL)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/priv)
-file(GLOB ELIXIR_SERIAL_SRC src/*.c)
-add_executable(serial ${ELIXIR_SERIAL_SRC})
