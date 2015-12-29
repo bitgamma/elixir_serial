@@ -2,9 +2,5 @@ _build
 deps
 priv
 doc
-CMakeFiles
-CMakeCache.txt
-cmake_install.cmake
-Makefile
 erl_crash.dump
 *.ez

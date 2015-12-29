@@ -1,9 +1,8 @@
-defmodule Mix.Tasks.Compile.Cmake do
+defmodule Mix.Tasks.Compile.Serial do
+  @shortdoc "Compiles serial port binary"
   def run(_) do
-    {result, _error_code} = System.cmd("cmake", ["."], stderr_to_stdout: true)
-    Mix.shell.info result
-    {result, _error_code} = System.cmd("make", ["all"], stderr_to_stdout: true)
-    Mix.shell.info result
+    0 = Mix.Shell.IO.cmd("make priv/serial")
+    Mix.Project.build_structure
     :ok
   end
 end
@@ -15,7 +14,7 @@ defmodule Serial.Mixfile do
     [app: :serial,
      version: "0.1.1",
      elixir: "~> 1.0",
-     compilers: [:cmake] ++ Mix.compilers,
+     compilers: [:serial, :elixir, :app],
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps,
@@ -24,9 +23,7 @@ defmodule Serial.Mixfile do
      docs: [readme: "README.md", main: "README"]]
   end
 
-  def application do
-    [applications: [:logger]]
-  end
+  def application, do: []
 
   defp deps do
     [
@@ -41,7 +38,7 @@ defmodule Serial.Mixfile do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README.md", "LICENSE", "src", "CMakeLists.txt"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE", "src", "Makefile"],
       contributors: ["Michele Balistreri"],
       licenses: ["ISC"],
       links: %{"GitHub" => "https://github.com/bitgamma/elixir_serial"}
