@@ -19,8 +19,8 @@ defmodule Serial.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps,
      package: package,
-     description: description,
-     docs: [readme: "README.md", main: "README"]]
+     description: description
+     ]
   end
 
   def application, do: []
