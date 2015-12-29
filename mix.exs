@@ -12,7 +12,7 @@ defmodule Serial.Mixfile do
 
   def project do
     [app: :serial,
-     version: "0.1.1",
+     version: "0.1.2",
      elixir: "~> 1.0",
      compilers: [:serial, :elixir, :app],
      build_embedded: Mix.env == :prod,
@@ -27,8 +27,8 @@ defmodule Serial.Mixfile do
 
   defp deps do
     [
-      {:earmark, "~> 0.1", only: :docs},
-      {:ex_doc, "~> 0.8", only: :docs}
+      {:earmark, "~> 0.1", only: :dev},
+      {:ex_doc, "~> 0.11", only: :dev}
     ]
   end
 
@@ -39,7 +39,7 @@ defmodule Serial.Mixfile do
   defp package do
     [
       files: ["lib", "mix.exs", "README.md", "LICENSE", "src", "Makefile"],
-      contributors: ["Michele Balistreri"],
+      maintainers: ["Michele Balistreri"],
       licenses: ["ISC"],
       links: %{"GitHub" => "https://github.com/bitgamma/elixir_serial"}
     ]
