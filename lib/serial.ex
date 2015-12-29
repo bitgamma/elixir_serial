@@ -14,6 +14,7 @@ defmodule Serial do
   @parity_odd 6
   @parity_even 7
   @break 8
+  @flow_control 9
 
   @doc """
   Starts a serial port. The process invoking this function will receive
@@ -83,6 +84,13 @@ defmodule Serial do
   end
 
   @doc """
+  Enable or disable flow control.
+  """
+  def set_flow_control(pid, enable) do
+    GenServer.call(pid, {:flow_control, enable})
+  end
+
+  @doc """
   Sends data over the open connection.
   """
   def send_data(pid, data) do
@@ -91,7 +99,7 @@ defmodule Serial do
 
   def init(pid) do
     exec = :code.priv_dir(:serial) ++ '/serial'
-    port = Port.open({:spawn_executable, exec}, [{:args, ['-erlang']}, :binary, {:packet, 2}])
+    port = Port.open({:spawn_executable, exec}, [{:args, ['-erlang']}, :binary, {:packet, 2}, :exit_status])
     {:ok, {pid, port}}
   end
 
@@ -101,6 +109,11 @@ defmodule Serial do
   end
   def handle_call({:speed, new_in_speed, new_out_speed}, _from, {_pid, port} = state) do
     Port.command(port, [@speed, Integer.to_char_list(new_in_speed), ' ', Integer.to_char_list(new_out_speed), 0])
+    {:reply, :ok, state}
+  end
+  def handle_call({:flow_control, new_enable}, _from, {_pid, port} = state) do
+    enable_char = if new_enable, do: '1', else: '0'
+    Port.command(port, [@flow_control, enable_char])
     {:reply, :ok, state}
   end
   def handle_call({:cmd, cmd}, _from, {_pid, port} = state) do
@@ -115,5 +128,8 @@ defmodule Serial do
   def handle_info({port, {:data, data}}, {pid, port} = state) do
     send(pid, {:elixir_serial, self(), data})
     {:noreply, state}
+  end
+  def handle_info({port, {:exit_status, status}}, {_pid, port} = _state) do
+    exit({:port_exit, status})
   end
 end
