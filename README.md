@@ -1,5 +1,7 @@
 # elixir_serial
 
+### *** Attention: Use [Nerves UART](https://github.com/nerves-project/nerves_uart) for new projects ***
+
 This is a port program with elixir driver for serial communication.
 
 The C code was originally written by Johan Bevemyr in 1996 and
